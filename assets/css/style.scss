@@ -1,0 +1,399 @@
+/* Vue slick carousel */
+
+.slick-prev,
+.slick-next {
+  font-size: 0;
+  line-height: 0;
+  padding: 0;
+  @apply absolute top-1/2 transform -translate-y-1/2 w-10 h-10 bg-green-400 rounded-full shadow-md z-20 transition-all hover:bg-green-700 #{!important};
+}
+
+.slick-prev:before,
+.slick-next:before {
+  @apply text-4xl text-white leading-3;
+}
+
+.slick-prev.slick-disabled:before,
+.slick-next.slick-disabled:before {
+  @apply opacity-25;
+}
+
+.slick-prev {
+  @apply left-2;
+}
+
+.slick-prev:before {
+  content: '‹';
+}
+
+.slick-next {
+  @apply right-2;
+}
+
+.slick-next:before {
+  content: '›';
+}
+
+.slick-dots {
+  @apply absolute w-full z-20 p-0 m-0 list-none text-center -bottom-6 flex justify-center items-center #{!important};
+}
+
+.slick-dots li {
+  @apply mx-1;
+  @layer xl: mx-2 flex;
+}
+
+.slick-dots li button {
+  font-size: 0;
+  line-height: 0;
+  @apply w-5 h-5 outline-none;
+}
+
+.slick-dots li button:before {
+  content: '•';
+  @apply block text-center text-bg2-light text-5xl leading-3 w-6 h-6;
+  @layer dark: text-bg2-dark;
+}
+
+.slick-dots li.slick-active button:before {
+  @apply opacity-100 text-gray border-2 border-white rounded-full;
+}
+
+.dialog-overlay-enter {
+  @apply opacity-0;
+}
+
+.dialog-overlay-enter-to {
+  @apply opacity-100;
+}
+
+.dialog-overlay-enter-active {
+  @apply ease-out duration-300;
+}
+
+.dialog-overlay-leave {
+  @apply opacity-100;
+}
+
+.dialog-overlay-leave-to {
+  @apply opacity-0;
+}
+
+.dialog-overlay-leave-active {
+  @apply ease-in duration-200;
+}
+
+.dialog-enter,
+.dialog-leave-to {
+  @apply opacity-0 translate-y-4;
+  @layer sm: translate-y-0 sm:scale-95;
+}
+
+.dialog-enter-to,
+.dialog-leave {
+  @apply opacity-100 translate-y-0;
+  @layer sm: scale-100;
+}
+
+.dialog-enter-active {
+  @apply ease-out duration-300;
+}
+
+.dialog-leave-active {
+  @apply ease-in duration-200;
+}
+
+// dropdown menu
+.dropdown {
+  @apply relative inline-flex align-middle z-50;
+
+  .btn {
+    @apply pl-3 pr-0 py-3 uppercase text-menu-color-light;
+    @layer dark: text-menu-color-dark text-xl font-bold transition-colors hover:text-red-600 dark:hover:text-white focus:text-red-600 dark:focus:text-white inline-flex justify-center items-center w-full;
+  }
+
+  .dropdown-toggle {
+    @apply px-2 py-3 outline-none;
+
+    &::after {
+      display: inline-block;
+      vertical-align: 0.255em;
+      content: '';
+      border-top: 0.3em solid;
+      border-right: 0.3em solid transparent;
+      border-bottom: 0;
+      border-left: 0.3em solid transparent;
+    }
+  }
+}
+
+.dropdown-menu {
+  @apply hidden;
+
+  &.show {
+    @apply block;
+  }
+}
+
+.b-sidebar-outer {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0;
+  overflow: visible;
+  z-index: 1000;
+}
+
+.b-sidebar-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: -1;
+  width: 100vw;
+  height: 100vh;
+  opacity: 0.6;
+}
+
+.b-sidebar {
+  display: flex;
+  flex-direction: column;
+  position: fixed;
+  top: 0;
+  width: 320px;
+  max-width: 100%;
+  height: 100vh;
+  max-height: 100%;
+  margin: 0;
+  outline: 0;
+  transform: translateX(0);
+
+  &.slide {
+    transition: transform 0.3s ease-in-out;
+
+    @media (prefers-reduced-motion: reduce) {
+      transition: none;
+    }
+  }
+
+  &:not(.b-sidebar-right) {
+    left: 0;
+    right: auto;
+
+    &.slide:not(.show) {
+      transform: translateX(-100%);
+    }
+
+    > .b-sidebar-header .close {
+      margin-left: auto;
+    }
+  }
+
+  &.b-sidebar-right {
+    left: auto;
+    right: 0;
+
+    &.slide:not(.show) {
+      transform: translateX(100%);
+    }
+
+    > .b-sidebar-header .close {
+      margin-right: auto;
+    }
+  }
+
+  > .b-sidebar-header {
+    font-size: 1.5rem;
+    padding: 0.5rem 1rem;
+    display: flex;
+    flex-direction: row;
+    flex-grow: 0;
+    align-items: center;
+
+    @at-root {
+      // Keep the buttons on the correct end when in RTL mode
+      [dir='rtl'] & {
+        flex-direction: row-reverse;
+      }
+    }
+
+    .close {
+      float: none;
+      font-size: 1.5rem;
+    }
+  }
+
+  > .b-sidebar-body {
+    flex-grow: 1;
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  > .b-sidebar-footer {
+    flex-grow: 0;
+  }
+}
+
+.collapse:not(.show) {
+  display: none;
+}
+
+.collapsing {
+  position: relative;
+  height: 0;
+  overflow: hidden;
+  transition: height 0.35s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .collapsing {
+    transition: none;
+  }
+}
+
+// Shell div to position the modal with bottom padding
+.modal-dialog {
+  // When fading in the modal, animate it to slide down
+  .modal.fade & {
+    transition: transform 0.3s ease-out;
+    transform: translate(0, -50px);
+  }
+
+  .modal.show & {
+    transform: none;
+  }
+}
+
+.modal-backdrop {
+  @apply fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity;
+}
+
+// nuxt link
+// .nuxt-link-exact-active {
+//   @apply text-black dark:text-white
+// }
+
+.share-network-facebook {
+  background-color: #3b5998 !important;
+}
+
+.share-network-messenger {
+  background-color: #1877f2 !important;
+}
+
+.share-network-twitter {
+  background-color: #FFFFFF !important;
+}
+
+.share-network-linkedin {
+  background-color: #0a66c2 !important;
+}
+
+.share-network-whatsapp {
+  background-color: #25d366 !important;
+}
+
+.share-network-email {
+  background-color: #ff9800 !important;
+}
+
+.share-network-sms {
+  background-color: #95c144 !important;
+}
+
+.share-network-youtube {
+  background-color: #ff0000 !important;
+}
+
+.share-network-instagram {
+  background-color: #c32aa3 !important;
+}
+
+.share-network-pinterest {
+  background-color: #bd081c !important;
+}
+
+.slide-enter-active {
+  transition-property: height;
+  transition-duration: 0.3s;
+  transition-timing-function: ease-in;
+}
+
+.slide-leave-active {
+  transition-property: height;
+  transition-duration: 0.3s;
+  transition-timing-function: cubic-bezier(0, 1, 0.5, 1);
+}
+
+.slide-enter-to,
+.slide-leave {
+  height: 100%;
+  overflow: hidden;
+}
+
+.slide-enter,
+.slide-leave-to {
+  overflow: hidden;
+  height: 0;
+}
+
+.main-slider-container {
+  .slick-slider {
+    width: 100%;
+  }
+}
+
+@media only screen and (max-width: 1600px) and (min-width: 1200px) {
+  .container {
+    width: 95%;
+  }
+}
+
+@media only screen and (max-width: 1280px) and (min-width: 1040px) {
+  .main-slider-container {
+    .slick-slider {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+  }
+  .ads-carousel-container {
+    .slick-slider {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+  }
+}
+
+@media only screen and (max-width: 993px) and (min-width: 678px) {
+  .main-slider-container {
+    .slick-slider {
+      max-width: 750px;
+      margin: 0 auto;
+    }
+  }
+  .ads-carousel-container {
+    .slick-slider {
+      width: 100%;
+      max-width: 650px;
+      margin: 0 auto;
+    }
+  }
+}
+
+@media only screen and (max-width: 679px) {
+  .main-slider-container {
+    .slick-slider {
+      max-width: 340px;
+      margin: 0 auto;
+    }
+  }
+  .ads-carousel-container {
+    .slick-slider {
+      width: 100%;
+      max-width: 340px;
+      margin: 0 auto;
+      // max-width: 320px;
+    }
+  }
+}

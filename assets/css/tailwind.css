@@ -1,0 +1,13 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  @apply bg-body-light dark:bg-body-dark text-p-light dark:text-p-dark;
+}
+
+#typed, .typed-cursor {
+  @apply text-bg2-light dark:text-bg2-dark font-bold text-xl py-2;
+}

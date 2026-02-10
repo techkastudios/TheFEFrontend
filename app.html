@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en" {{ HTML_ATTRS }}>
+  <head {{ HEAD_ATTRS }}>
+    {{ HEAD }}
+    <!-- <meta property="fb:pages" content="657873977593980" />
+    <meta property="fb:app_id" content="793197736190103" />   -->
+    <script
+      async
+      src="https://fundingchoicesmessages.google.com/i/pub-3438694616169600?ers=1"
+      nonce="uhTsdOKqDI_CNUUgaQBVOQ"
+    ></script>
+    <script nonce="uhTsdOKqDI_CNUUgaQBVOQ">
+      ;(function () {
+        function signalGooglefcPresent() {
+          if (!window.frames['googlefcPresent']) {
+            if (document.body) {
+              const iframe = document.createElement('iframe')
+              iframe.style =
+                'width: 0; height: 0; border: none; z-index: -1000; left: -1000px; top: -1000px;'
+              iframe.style.display = 'none'
+              iframe.name = 'googlefcPresent'
+              document.body.appendChild(iframe)
+            } else {
+              setTimeout(signalGooglefcPresent, 0)
+            }
+          }
+        }
+        signalGooglefcPresent()
+      })()
+    </script>
+  </head>
+
+  <body {{ BODY_ATTRS }}>
+    {{ APP }}
+  </body>
+</html>

@@ -1,0 +1,50 @@
+/* Regular (400) */
+@font-face {
+    font-family: 'merriweather-sans';
+    src: url('../css/fonts/merriweather_sans/MerriweatherSans-Regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+  
+/* Bold (700) */
+@font-face {
+    font-family: 'merriweather-sans';
+    src: url('../css/fonts/merriweather_sans/MerriweatherSans-Bold.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+/* Regular (400) */
+@font-face {
+    font-family: 'richmond-display-semi';
+    src: url('../css/fonts/richmond/Richmond-Display-Regular.otf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+}
+  
+  
+/* Bold (700) */
+@font-face {
+    font-family: 'richmond-display-semi';
+    src: url('../css/fonts/richmond/Richmond-Display-Semi-Bold.otf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+}
+
+.merriweather-sans-normal {
+    font-family: merriweather-sans;
+}
+
+.merriweather-sans-bold {
+    font-family: merriweather-sans;
+    font-weight: 700;
+}
+
+.richmond-display-normal {
+    font-family: richmond-display-semi;
+}
+
+.richmond-display-bold {
+    /* font-family: richmond-display-semi;
+    font-weight: 700; */
+}
