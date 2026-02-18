@@ -83,7 +83,7 @@ export default defineComponent({
     class="col-auto xl:col-span-3 order-4 xl:order-none"
   >
     <!-- Optional Ad Section -->
-    <v-ads v-if="ads" :ads="ads1" />
+    <v-ads v-if="ads1" :ads="ads1" />
       
     <div class="bg-op-light dark:bg-op-dark grid grid-flow-row mb-4">
       <header
