@@ -82,9 +82,8 @@ export default defineComponent({
     ref="target"
     class="col-auto xl:col-span-3 order-4 xl:order-none"
   >
-  <!-- Start Election countdown  -->
-     <v-election-count-down :ads="ads1"></v-election-count-down>
-      <!-- End Election countdown  -->
+    <!-- Optional Ad Section -->
+    <v-ads v-if="ads" :ads="ads1" />
       
     <div class="bg-op-light dark:bg-op-dark grid grid-flow-row mb-4">
       <header
