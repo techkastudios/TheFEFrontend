@@ -36,6 +36,17 @@ export default defineComponent({
 </script>
 
 <template>
+  <!-- Notice: Undermaintanance mode -->
+    <div class="py-5">
+      <v-container>
+        <div
+          class="text-4xl text-center py-2"
+        >We are currently performing maintenance to improve system performance and stability.
+During this time, the website may be temporarily unavailable.
+We expect to restore full access shortly.</div>
+        <div class="text-7xl text-center">Thank you for your continued support and understanding.</div>
+      </v-container>
+    </div>
   <div>
     <!-- ads 1 -->
     <!-- <v-container class="hidden md:block"> -->
