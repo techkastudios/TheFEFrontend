@@ -1,6 +1,6 @@
 const type = "website";
 const url = process.env.APP_URL;
-const title = "The Financial Express | First Financial Daily of BD";
+const title = "The Financial Express | First Financial Daily of Bangladesh";
 const description = "Get latest stock share market news, financial news, economy news, politics news, breaking news, Bangladesh economy news at The Financial Express.";
 const image = "https://thefinancialexpress.com.bd/img/the-financial-express.png";
 

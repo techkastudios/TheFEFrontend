@@ -14,7 +14,7 @@ export default {
         async: true,
       },
     ],
-    title: 'The Financial Express | First Financial Daily of BD',
+    title: 'The Financial Express | First Financial Daily of Bangladesh',
     titleTemplate: '%s',
     meta: [
       { name: 'format-detection', content: 'telephone=no' },
