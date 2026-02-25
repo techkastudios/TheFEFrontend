@@ -182,7 +182,7 @@ export default {
   published_info: `Published by Syed Nasim Manzur for International Publications
     Limited from Tropicana Tower (4th floor), 45, Topkhana Road, GPO Box
     : 2526 Dhaka- 1000 and printed by him from The Transcraft Limited, 229, Tejgaon Industrial Area, Dhaka-1208`,
-  copy_rights: 'All Rights with The Financial Express Bangladesh',
+  copy_rights: 'All Rights with The Financial Express',
   calendar: {
     date: {
       1: '1',
