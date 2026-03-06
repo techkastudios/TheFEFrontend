@@ -225,6 +225,7 @@ export default {
     { src: '~/plugins/global-components', ssr: false },
     { src: '~/plugins/mixins' },
     { src: '~/plugins/vue-click-outside' },
+    { src: '~/plugins/axios-error' }, // SSR crash fix: prevents 504 from circular Axios errors
   ],
 
   // Auto import components: https:// go.nuxtjs.dev/config-components

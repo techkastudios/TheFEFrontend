@@ -1,0 +1,133 @@
+name: TheFEFrontend — Build & Deploy
+
+on:
+  push:
+    branches: [staging, main]
+  pull_request:
+    branches: [staging, main]
+  workflow_dispatch:
+    inputs:
+      environment_branch:
+        description: Branch to deploy
+        required: true
+        type: choice
+        options:
+          - staging
+          - main
+
+permissions:
+  contents: read
+
+# Cancel in-progress deploys on the same branch to avoid race conditions
+concurrency:
+  group: frontend-deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ── Job 1: Lint & Type-check ──────────────────────────────────────────────
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node 16
+        uses: actions/setup-node@v4
+        with:
+          node-version: '16.20.2'
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: HUSKY=0 yarn install --frozen-lockfile
+
+      - name: Run ESLint
+        run: yarn lint --max-warnings=0
+
+  # ── Job 2: Deploy (only on push/dispatch, not PRs) ───────────────────────
+  deploy:
+    name: Deploy (Forge)
+    needs: lint
+    runs-on: ubuntu-latest
+    if: github.event_name != 'pull_request'
+
+    env:
+      TARGET_BRANCH: ${{ github.event_name == 'workflow_dispatch' && inputs.environment_branch || github.ref_name }}
+
+    environment:
+      name: ${{ ((github.event_name == 'workflow_dispatch' && inputs.environment_branch == 'main') || (github.event_name != 'workflow_dispatch' && github.ref_name == 'main')) && 'production' || 'staging' }}
+      url: ${{ ((github.event_name == 'workflow_dispatch' && inputs.environment_branch == 'main') || (github.event_name != 'workflow_dispatch' && github.ref_name == 'main')) && 'https://thefinancialexpress.com.bd' || 'https://staging.thefinancialexpress.com.bd' }}
+
+    steps:
+      - name: Trigger Forge deploy (staging)
+        if: env.TARGET_BRANCH == 'staging'
+        env:
+          FORGE_STAGING_DEPLOY_URL: ${{ secrets.FORGE_STAGING_FRONTEND_DEPLOY_URL }}
+        run: |
+          response=$(curl -fsS -w "\n%{http_code}" -X POST "$FORGE_STAGING_DEPLOY_URL")
+          http_code=$(echo "$response" | tail -n1)
+          if [ "$http_code" -lt 200 ] || [ "$http_code" -ge 300 ]; then
+            echo "❌ Forge webhook failed with HTTP $http_code"
+            exit 1
+          fi
+          echo "✅ Forge deploy triggered (staging)"
+
+      - name: Trigger Forge deploy (production)
+        if: env.TARGET_BRANCH == 'main'
+        env:
+          FORGE_PROD_DEPLOY_URL: ${{ secrets.FORGE_PROD_FRONTEND_DEPLOY_URL }}
+        run: |
+          response=$(curl -fsS -w "\n%{http_code}" -X POST "$FORGE_PROD_DEPLOY_URL")
+          http_code=$(echo "$response" | tail -n1)
+          if [ "$http_code" -lt 200 ] || [ "$http_code" -ge 300 ]; then
+            echo "❌ Forge webhook failed with HTTP $http_code"
+            exit 1
+          fi
+          echo "✅ Forge deploy triggered (production)"
+
+      - name: Wait for Forge deploy to complete
+        run: |
+          echo "⏳ Waiting 90s for Nuxt build + daemon restart..."
+          sleep 90
+
+      - name: Post-deploy health check (staging)
+        if: env.TARGET_BRANCH == 'staging'
+        run: |
+          url="https://staging.thefinancialexpress.com.bd"
+          max_retries=10
+          retry_delay=15
+          for i in $(seq 1 $max_retries); do
+            http_code=$(curl -o /dev/null -s -w "%{http_code}" --max-time 20 "$url")
+            if [ "$http_code" -eq 200 ]; then
+              echo "✅ Health check passed: $url returned HTTP $http_code"
+              exit 0
+            fi
+            echo "⚠️  Attempt $i/$max_retries — got HTTP $http_code, retrying in ${retry_delay}s..."
+            sleep $retry_delay
+          done
+          echo "❌ Health check FAILED after $max_retries attempts"
+          exit 1
+
+      - name: Post-deploy health check (production)
+        if: env.TARGET_BRANCH == 'main'
+        run: |
+          url="https://thefinancialexpress.com.bd"
+          max_retries=10
+          retry_delay=15
+          for i in $(seq 1 $max_retries); do
+            http_code=$(curl -o /dev/null -s -w "%{http_code}" --max-time 20 "$url")
+            if [ "$http_code" -eq 200 ]; then
+              echo "✅ Health check passed: $url returned HTTP $http_code"
+              exit 0
+            fi
+            echo "⚠️  Attempt $i/$max_retries — got HTTP $http_code, retrying in ${retry_delay}s..."
+            sleep $retry_delay
+          done
+          echo "❌ Health check FAILED after $max_retries attempts"
+          exit 1
+
+      - name: Notify on failure
+        if: failure()
+        run: |
+          echo "::error::🚨 TheFEFrontend deployment FAILED on branch ${{ env.TARGET_BRANCH }}"
+          echo "::error::Commit: ${{ github.sha }}"
+          echo "::error::Author: ${{ github.actor }}"
