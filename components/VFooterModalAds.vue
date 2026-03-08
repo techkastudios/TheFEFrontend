@@ -64,12 +64,6 @@ export default defineComponent({
 })
 </script>
 
-<style>
-#footerPopupAd .footer-minimize-btn{
-  bottom: auto;
-  top: -28px;
-}
-</style>
 
 <template>
   <div class="popup-ads-container">
@@ -107,3 +101,10 @@ export default defineComponent({
     </template>
   </div>
 </template>
+
+<style>
+#footerPopupAd .footer-minimize-btn{
+  bottom: auto;
+  top: -28px;
+}
+</style>
