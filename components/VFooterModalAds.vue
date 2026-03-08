@@ -64,6 +64,13 @@ export default defineComponent({
 })
 </script>
 
+<style>
+#footerPopupAd .footer-minimize-btn{
+  bottom: auto;
+  top: -28px;
+}
+</style>
+
 <template>
   <div class="popup-ads-container">
     <span>
