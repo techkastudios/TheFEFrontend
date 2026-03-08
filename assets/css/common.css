@@ -353,21 +353,25 @@ body:has(footer.bg-footer-bottom-light .footer-popup)
 
 @keyframes footer-popup-up {
   0% {
-    bottom: -120px;
+    /* bottom: -120px; */
+    transform: translateY(100%);
   }
 
   100% {
-    bottom: 0;
+    /* bottom: 0; */
+    transform: translateY(0%);
   }
 }
 
 @keyframes footer-popup-down {
   0% {
-    bottom: 0;
+    /* bottom: 0; */
+    transform: translateY(0%);
   }
 
   100% {
-    bottom: -120px;
+    /* bottom: -120px; */
+    transform: translateY(100%);
   }
 }
 
