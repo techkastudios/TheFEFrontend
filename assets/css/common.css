@@ -344,6 +344,11 @@ input.gsc-input:focus {
   display: none;
 }
 
+/* Hide adsbygoogle when footer popup is present */
+body:has(footer.bg-footer-bottom-light .footer-popup) 
+  ins.adsbygoogle[style*="bottom: 0"] {
+    display: none !important;
+}
 
 
 @keyframes footer-popup-up {
