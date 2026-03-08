@@ -283,7 +283,8 @@ input.gsc-input:focus {
 }
 
 .footer-popup-down {
-  bottom: -120px;
+  /* bottom: -120px; */
+  transform: translateY(100%);
   animation: footer-popup-down 2s alternate;
 }
 
