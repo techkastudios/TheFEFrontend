@@ -283,7 +283,6 @@ input.gsc-input:focus {
 }
 
 .footer-popup-down {
-  /* bottom: -120px; */
   transform: translateY(100%);
   animation: footer-popup-down 2s alternate;
 }
@@ -354,24 +353,20 @@ body:has(footer.bg-footer-bottom-light .footer-popup)
 
 @keyframes footer-popup-up {
   0% {
-    /* bottom: -120px; */
     transform: translateY(100%);
   }
 
   100% {
-    /* bottom: 0; */
     transform: translateY(0%);
   }
 }
 
 @keyframes footer-popup-down {
   0% {
-    /* bottom: 0; */
     transform: translateY(0%);
   }
 
   100% {
-    /* bottom: -120px; */
     transform: translateY(100%);
   }
 }
