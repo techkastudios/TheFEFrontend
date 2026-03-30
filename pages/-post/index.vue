@@ -240,7 +240,7 @@ export default defineComponent({
       let morePostUrl = `api/${lang}/post-more/${slug.value}`
 
       // TODO: Only bn category post call from 'en' API
-      if (lang === 'bn' && category === 'bn') {
+      if (lang === 'bn' && category.value === 'bn') {
         morePostUrl = `api/en/post-more/${slug.value}`
       }
 
