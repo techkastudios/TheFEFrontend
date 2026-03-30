@@ -1,4 +1,6 @@
 export default {
+  ssr: true, // MUST be true
+  target: 'server',
   // Global page headers: https:// go.nuxtjs.dev/config-head
   head: {
     script: [
