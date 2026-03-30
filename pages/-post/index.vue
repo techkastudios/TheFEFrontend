@@ -3,7 +3,7 @@ import {
   computed,
   defineComponent,
   ref,
-  useFetch,
+  useAsync,
   useContext,
   onMounted,
   useMeta,
@@ -16,20 +16,43 @@ import CategoryPostTitle from '~/components/home/CategoryPostTitle.vue'
 import CategoryMediaTopLeft from '~/components/home/CategoryMediaTopLeft.vue'
 import { AdsPosition } from '~/types/ads'
 
+const SITE_NAME = 'The Financial Express'
+const DEFAULT_DOCUMENT_TITLE =
+  'The Financial Express | First Financial Daily of Bangladesh'
+const DEFAULT_DESCRIPTION =
+  'Get latest stock share market news, financial news, economy news, politics news, breaking news, Bangladesh economy news at The Financial Express.'
+
+/** Never pass through the strings "undefined" / "null" or empty content to crawlers. */
+function safeMetaString(value: unknown, fallback: string): string {
+  if (value === null || value === undefined) return fallback
+  const s = String(value).trim()
+  if (s === '' || s === 'undefined' || s === 'null') return fallback
+  return s
+}
+
+function absoluteOgImage(
+  raw: string | undefined,
+  baseNoTrailingSlash: string
+): string {
+  const fallback = `${baseNoTrailingSlash}/the-financial-express.jpg`
+  const s = safeMetaString(raw, '')
+  if (!s) return fallback
+  if (/^https?:\/\//i.test(s)) return s
+  return `${baseNoTrailingSlash}/${s.replace(/^\//, '')}`
+}
+
 export default defineComponent({
   name: 'PostSingle',
 
   components: { CategoryPostTitle, CategoryMediaTopLeft },
 
   setup() {
-    const { $axios, params, i18n, $config } = useContext()
-    const slug = computed(() => params.value.slug)
+    const { $axios, params, route, i18n, $config } = useContext()
 
     const positions = ref<AdsPosition[]>([])
 
     const target = ref(null)
     const loading = ref(false)
-    const post = ref<Post>()
 
     const relatedPosts = ref<Posts[]>([])
     const morePosts = ref<Posts[]>([])
@@ -37,93 +60,146 @@ export default defineComponent({
     const leadBottom = ref<Posts>()
     const column3 = ref<Posts[]>([])
     const lang = i18n?.locale === 'bangla' ? 'bn' : 'en'
-    const category = params && params.value ? params.value.category : ''
 
-    let apiUrl = `api/${lang}/post/${slug.value}`
+    const slug = computed(() => String(params.value.slug ?? ''))
+    const category = computed(() => String(params.value.category ?? ''))
 
-    // TODO: Only bn category post call from 'en' API
-    if (lang === 'bn' && category === 'bn') {
-      apiUrl = `api/en/post/${slug.value}`
-    }
+    const routeIdentityKey = computed(() =>
+      [slug.value, category.value, params.value.subcategory ?? ''].join(':')
+    )
 
-    useFetch(async () => {
-      post.value = await $axios.$get(apiUrl)
+    const imageBase = computed(() =>
+      safeMetaString($config.baseURL, '').replace(/\/$/, '')
+    )
+
+    const siteOrigin = computed(() => {
+      const base = imageBase.value
+      return lang === 'bn' ? `${base}/bangla` : base
     })
 
-    let baseUrl = `${$config.baseURL}`
+    const canonicalPageUrl = computed(() => {
+      const origin = siteOrigin.value || imageBase.value
+      const path = route.value?.fullPath?.split('?')[0] || '/'
+      const normalized = path.startsWith('/') ? path : `/${path}`
+      return `${origin}${normalized}`
+    })
 
-    if (lang === 'bn') {
-      baseUrl += '/bangla'
+    async function loadPostFromParams(): Promise<Post | null> {
+      const slugStr = slug.value
+      const categoryStr = category.value
+      if (!slugStr) return null
+
+      let apiUrl = `api/${lang}/post/${slugStr}`
+      // TODO: Only bn category post call from 'en' API
+      if (lang === 'bn' && categoryStr === 'bn') {
+        apiUrl = `api/en/post/${slugStr}`
+      }
+
+      try {
+        return await $axios.$get<Post>(apiUrl)
+      } catch {
+        return null
+      }
     }
 
-    useMeta(() => ({
-      title: `${post.value?.title} | The Financial Express`,
-      meta: [
-        {
-          hid: 'description',
-          name: 'description',
-          content: post.value?.excerpt || '',
-        },
-        {
-          hid: 'og:type',
-          property: 'og:type',
-          content: 'article',
-        },
-        {
-          hid: 'og:url',
-          property: 'og:url',
-          content: baseUrl + `${post.value?.slug}`,
-        },
-        {
-          hid: 'og:title',
-          property: 'og:title',
-          content: post.value?.meta_title || post.value?.title || '',
-        },
-        {
-          hid: 'og:description',
-          property: 'og:description',
-          content: post.value?.meta_description || post.value?.excerpt || '',
-        },
-        {
-          hid: 'og:image',
-          property: 'og:image',
-          content:
-          post.value?.metaImage || post.value?.image ||
-            `${$config.baseURL}/the-financial-express.jpg`,
-        },
-        {
-          hid: 'og:image:width',
-          property: 'og:image:width',
-          content: '1200',
-        },
-        {
-          hid: 'og:image:height',
-          property: 'og:image:height',
-          content: '630',
-        },
-        {
-          hid: 'twitter:url',
-          name: 'twitter:url',
-          content: baseUrl + `${post.value?.slug}`,
-        },
-        {
-          hid: 'twitter:title',
-          name: 'twitter:title',
-          content: post.value?.title || '',
-        },
-        {
-          hid: 'twitter:description',
-          name: 'twitter:description',
-          content: post.value?.excerpt || '',
-        },
-        {
-          hid: 'twitter:image',
-          name: 'twitter:image',
-          content:
-            post.value?.image || `${$config.baseURL}/the-financial-express.jpg`,
-        },
-      ],
-    }))
+    const post = useAsync(
+      loadPostFromParams,
+      `post:${lang}:${routeIdentityKey.value}`
+    )
+
+    // Same component instance can be reused when only :slug / :category change; useAsync runs once.
+    watch(
+      routeIdentityKey,
+      async (next, prev) => {
+        if (prev === undefined || next === prev) return
+        post.value = await loadPostFromParams()
+      }
+    )
+
+    useMeta(() => {
+      const p = post.value
+      const base = imageBase.value
+
+      const primaryTitle = safeMetaString(p?.meta_title || p?.title, '')
+      const documentTitle = primaryTitle
+        ? `${primaryTitle} | ${SITE_NAME}`
+        : DEFAULT_DOCUMENT_TITLE
+
+      const ogTitle = primaryTitle || DEFAULT_DOCUMENT_TITLE
+      const description = safeMetaString(
+        p?.meta_description || p?.excerpt,
+        DEFAULT_DESCRIPTION
+      )
+      const ogUrl = safeMetaString(canonicalPageUrl.value, siteOrigin.value)
+      const ogImage = absoluteOgImage(p?.metaImage || p?.image, base)
+      const twitterImage = absoluteOgImage(p?.image, base)
+
+      return {
+        title: documentTitle,
+        meta: [
+          {
+            hid: 'description',
+            name: 'description',
+            content: description,
+          },
+          {
+            hid: 'og:type',
+            property: 'og:type',
+            content: 'article',
+          },
+          {
+            hid: 'og:url',
+            property: 'og:url',
+            content: ogUrl,
+          },
+          {
+            hid: 'og:title',
+            property: 'og:title',
+            content: ogTitle,
+          },
+          {
+            hid: 'og:description',
+            property: 'og:description',
+            content: description,
+          },
+          {
+            hid: 'og:image',
+            property: 'og:image',
+            content: ogImage,
+          },
+          {
+            hid: 'og:image:width',
+            property: 'og:image:width',
+            content: '1200',
+          },
+          {
+            hid: 'og:image:height',
+            property: 'og:image:height',
+            content: '630',
+          },
+          {
+            hid: 'twitter:url',
+            name: 'twitter:url',
+            content: ogUrl,
+          },
+          {
+            hid: 'twitter:title',
+            name: 'twitter:title',
+            content: primaryTitle || DEFAULT_DOCUMENT_TITLE,
+          },
+          {
+            hid: 'twitter:description',
+            name: 'twitter:description',
+            content: description,
+          },
+          {
+            hid: 'twitter:image',
+            name: 'twitter:image',
+            content: twitterImage,
+          },
+        ],
+      }
+    })
 
     // section hendreller
     const { y } = useWindowScroll()
